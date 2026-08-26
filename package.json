@@ -1,0 +1,27 @@
+{
+  "name": "brickworks-metrics",
+  "version": "1.0.0",
+  "description": "BrickWorks IT Metrics dashboard with MongoDB backend",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "nodemon server.js"
+  },
+  "keywords": [
+    "brickworks",
+    "metrics",
+    "mongodb",
+    "express"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "express": "^4.21.2",
+    "mongoose": "^8.8.2"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.16"
+  }
+}
