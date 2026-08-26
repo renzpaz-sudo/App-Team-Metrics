@@ -6,6 +6,8 @@ require('dotenv').config();
 
 const app = express();
 const PORT = process.env.PORT || 5000;
+const appUsername = process.env.APP_USERNAME || 'brickworksIT';
+const appPassword = process.env.APP_PASSWORD || 'brickworksIT';
 
 app.use(cors());
 app.use(express.json());
@@ -50,6 +52,16 @@ let mongoAvailable = false;
 
 app.get('/api/health', (req, res) => {
   res.json({ ok: true, message: 'BrickWorks API is running', mongoAvailable });
+});
+
+app.post('/api/login', (req, res) => {
+  const { username, password } = req.body || {};
+
+  if (username === appUsername && password === appPassword) {
+    return res.json({ ok: true, message: 'Login successful' });
+  }
+
+  return res.status(401).json({ ok: false, message: 'Invalid username or password' });
 });
 
 app.get('/api/metrics', async (req, res) => {

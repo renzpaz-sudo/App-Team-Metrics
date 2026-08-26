@@ -9,6 +9,81 @@ let currentMonth = "";
 
 const weekLabels = ['Week 1', 'Week 2', 'Week 3', 'Week 4'];
 const API_BASE = '/api';
+const AUTH_KEY = 'brickworks-metrics-auth';
+
+function isAuthenticated() {
+    return localStorage.getItem(AUTH_KEY) === 'true';
+}
+
+function setAuthenticated(value) {
+    if (value) {
+        localStorage.setItem(AUTH_KEY, 'true');
+    } else {
+        localStorage.removeItem(AUTH_KEY);
+    }
+}
+
+function showLoginScreen(show) {
+    const loginScreen = document.getElementById('loginScreen');
+    const appShell = document.getElementById('appShell');
+    if (loginScreen) loginScreen.classList.toggle('hidden', !show);
+    if (appShell) appShell.classList.toggle('hidden', show);
+    if (show) {
+        document.getElementById('loginUsername')?.focus();
+    }
+}
+
+async function handleLogin(event) {
+    event.preventDefault();
+    const usernameInput = document.getElementById('loginUsername');
+    const passwordInput = document.getElementById('loginPassword');
+    const errorEl = document.getElementById('loginError');
+    const username = usernameInput.value.trim();
+    const password = passwordInput.value;
+
+    if (!username || !password) {
+        errorEl.textContent = 'Please enter both username and password.';
+        return;
+    }
+
+    try {
+        const response = await fetch(`${API_BASE}/login`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ username, password })
+        });
+
+        let result = {};
+        const text = await response.text();
+        if (text) {
+            try {
+                result = JSON.parse(text);
+            } catch (parseError) {
+                console.warn('Login response was not valid JSON:', text);
+                result = { message: 'Server returned an invalid response.' };
+            }
+        }
+
+        if (!response.ok || !result.ok) {
+            throw new Error(result.message || 'Invalid username or password');
+        }
+
+        setAuthenticated(true);
+        showLoginScreen(false);
+        errorEl.textContent = '';
+        usernameInput.value = '';
+        passwordInput.value = '';
+        initDashboard();
+    } catch (error) {
+        errorEl.textContent = error.message || 'Login failed. Please try again.';
+    }
+}
+
+function handleLogout() {
+    setAuthenticated(false);
+    showLoginScreen(true);
+    document.getElementById('loginUsername')?.focus();
+}
 
 function formatMonthDisplay(monthId) {
     if (!monthId) return monthId;
@@ -70,7 +145,17 @@ async function loadData() {
         if (typeof fetch === 'function') {
             const response = await fetch(`${API_BASE}/metrics`);
             if (response.ok) {
-                const data = await response.json();
+                const text = await response.text();
+                let data = {};
+                if (text) {
+                    try {
+                        data = JSON.parse(text);
+                    } catch (parseError) {
+                        console.warn('Metrics response was not valid JSON:', text);
+                        data = {};
+                    }
+                }
+
                 if (data.analysts && !Array.isArray(data.analysts)) {
                     globalAnalysts = data.analysts;
                 } else if (data.analysts && Array.isArray(data.analysts)) {
@@ -782,13 +867,33 @@ function initEventListeners() {
     document.getElementById('unifiedReportBtn').addEventListener('click', showUnifiedReportModal);
 }
 
-function init() {
+let dashboardInitialized = false;
+
+function initDashboard() {
+    if (dashboardInitialized) return;
+
     loadData();
     initEventListeners();
     rebuildMonthSelector();
     renderTables();
     updateAnalystDropdowns();
     updateMonthIndicators();
+    dashboardInitialized = true;
+}
+
+function init() {
+    const loginForm = document.getElementById('loginForm');
+    const logoutBtn = document.getElementById('logoutBtn');
+    if (loginForm) loginForm.addEventListener('submit', handleLogin);
+    if (logoutBtn) logoutBtn.addEventListener('click', handleLogout);
+
+    if (!isAuthenticated()) {
+        showLoginScreen(true);
+        return;
+    }
+
+    showLoginScreen(false);
+    initDashboard();
 }
 
 init();

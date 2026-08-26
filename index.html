@@ -9,14 +9,43 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <link rel="icon" type="image/x-icon" href="/BrickworksNA.jpg">
 </head>
 <body class="brick-pattern-bg antialiased">
+
+    <div id="loginScreen" class="login-screen">
+        <div class="login-card">
+            <div class="login-brand">
+                <i class="fa-solid fa-bricks text-amber-800 text-3xl"></i>
+                <div>
+                    <h2>BrickWorks</h2>
+                    <p>IT Operations Dashboard</p>
+                </div>
+            </div>
+            <form id="loginForm" class="login-form">
+                <div class="form-group">
+                    <label for="loginUsername">Username</label>
+                    <input id="loginUsername" type="text" placeholder="Enter username" autocomplete="username" required>
+                </div>
+                <div class="form-group">
+                    <label for="loginPassword">Password</label>
+                    <input id="loginPassword" type="password" placeholder="Enter password" autocomplete="current-password" required>
+                </div>
+                <button type="submit" class="login-btn">
+                    <i class="fa-solid fa-right-to-bracket"></i>
+                    Sign In
+                </button>
+                <p id="loginError" class="login-error" aria-live="polite"></p>
+            </form>
+        </div>
+    </div>
 
     <div id="exportLoading" class="export-loading">
         <i class="fa-solid fa-spinner fa-spin text-amber-700 text-xl"></i>
         <span>Generating report...</span>
     </div>
 
+    <div id="appShell" class="hidden">
     <div class="max-w-[1400px] mx-auto px-4 md:px-6 py-6 md:py-8">
         <!-- HEADER -->
         <div class="flex flex-wrap justify-between items-center mb-8 border-b border-orange-800/20 pb-4">
@@ -27,11 +56,14 @@
                 </h1>
                 <p class="text-stone-500 text-sm mt-1">Application Team • JD Edwards & Salesforce • Ticket Metrics</p>
             </div>
-            <div class="mt-2 md:mt-0 flex gap-2">
+            <div class="mt-2 md:mt-0 flex gap-2 items-center">
                 <div class="bg-white/70 backdrop-blur-sm rounded-full px-4 py-2 shadow-sm text-sm font-medium text-stone-700">
                     <i class="fa-regular fa-calendar-alt mr-2 text-amber-700"></i>
                     <span id="globalMonthIndicator">Loading...</span>
                 </div>
+                <button id="logoutBtn" class="bg-stone-800 hover:bg-stone-900 text-white text-sm px-4 py-2 rounded-full font-medium transition">
+                    <i class="fa-solid fa-right-from-bracket mr-2"></i>Logout
+                </button>
             </div>
         </div>
 
@@ -198,6 +230,7 @@
         <div class="mt-6 text-center text-xs text-stone-500 bg-stone-100/70 rounded-xl py-2 px-4">
             Click Edit ✏️ to modify GG/BWS counts per week | Click Delete 🗑️ to remove all tickets for an analyst | Month indicators show current viewing month
         </div>
+    </div>
     </div>
 
     <script src="app.js"></script>
