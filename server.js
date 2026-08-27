@@ -49,6 +49,23 @@ const fallbackState = {
 };
 
 let mongoAvailable = false;
+let mongoConnectionPromise;
+
+function connectMongo() {
+  if (mongoAvailable) return Promise.resolve();
+  if (!mongoConnectionPromise) {
+    mongoConnectionPromise = mongoose.connect(
+      process.env.MONGODB_URI || 'mongodb://127.0.0.1:27017/brickworks_metrics'
+    ).then(() => {
+      mongoAvailable = true;
+      console.log('Connected to MongoDB');
+    }).catch((error) => {
+      mongoConnectionPromise = undefined;
+      console.warn('MongoDB connection unavailable, running in fallback memory mode:', error.message);
+    });
+  }
+  return mongoConnectionPromise;
+}
 
 app.get('/api/health', (req, res) => {
   res.json({ ok: true, message: 'BrickWorks API is running', mongoAvailable });
@@ -131,13 +148,11 @@ async function startServer() {
     console.log(`Server running on http://localhost:${PORT}`);
   });
 
-  try {
-    await mongoose.connect(process.env.MONGODB_URI || 'mongodb://127.0.0.1:27017/brickworks_metrics');
-    mongoAvailable = true;
-    console.log('Connected to MongoDB');
-  } catch (error) {
-    console.warn('MongoDB connection unavailable, running in fallback memory mode:', error.message);
-  }
+  await connectMongo();
 }
 
-startServer();
+if (require.main === module) {
+  startServer();
+}
+
+module.exports = { app, connectMongo };
