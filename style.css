@@ -94,6 +94,13 @@ body {
     box-shadow: 0 10px 20px -12px rgba(146, 64, 14, 0.8);
 }
 
+.login-btn:disabled {
+    opacity: 0.75;
+    cursor: wait;
+    transform: none;
+    box-shadow: none;
+}
+
 .login-error {
     min-height: 20px;
     margin: 0;

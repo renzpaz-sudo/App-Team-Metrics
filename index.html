@@ -31,9 +31,10 @@
                     <label for="loginPassword">Password</label>
                     <input id="loginPassword" type="password" placeholder="Enter password" autocomplete="current-password" required>
                 </div>
-                <button type="submit" class="login-btn">
-                    <i class="fa-solid fa-right-to-bracket"></i>
-                    Sign In
+                <button id="loginBtn" type="submit" class="login-btn">
+                    <i id="loginBtnIcon" class="fa-solid fa-right-to-bracket"></i>
+                    <i id="loginBtnSpinner" class="fa-solid fa-spinner fa-spin" hidden></i>
+                    <span id="loginBtnText">Sign In</span>
                 </button>
                 <p id="loginError" class="login-error" aria-live="polite"></p>
             </form>

@@ -38,6 +38,10 @@ async function handleLogin(event) {
     const usernameInput = document.getElementById('loginUsername');
     const passwordInput = document.getElementById('loginPassword');
     const errorEl = document.getElementById('loginError');
+    const loginBtn = document.getElementById('loginBtn');
+    const loginBtnIcon = document.getElementById('loginBtnIcon');
+    const loginBtnSpinner = document.getElementById('loginBtnSpinner');
+    const loginBtnText = document.getElementById('loginBtnText');
     const username = usernameInput.value.trim();
     const password = passwordInput.value;
 
@@ -45,6 +49,12 @@ async function handleLogin(event) {
         errorEl.textContent = 'Please enter both username and password.';
         return;
     }
+
+    loginBtn.disabled = true;
+    loginBtnIcon.hidden = true;
+    loginBtnSpinner.hidden = false;
+    loginBtnText.textContent = 'Signing in...';
+    errorEl.textContent = '';
 
     try {
         const response = await fetch(`${API_BASE}/login`, {
@@ -76,6 +86,11 @@ async function handleLogin(event) {
         initDashboard();
     } catch (error) {
         errorEl.textContent = error.message || 'Login failed. Please try again.';
+    } finally {
+        loginBtn.disabled = false;
+        loginBtnIcon.hidden = false;
+        loginBtnSpinner.hidden = true;
+        loginBtnText.textContent = 'Sign In';
     }
 }
 
