@@ -127,6 +127,10 @@ app.post('/api/metrics', async (req, res) => {
 });
 
 async function startServer() {
+  app.listen(PORT, () => {
+    console.log(`Server running on http://localhost:${PORT}`);
+  });
+
   try {
     await mongoose.connect(process.env.MONGODB_URI || 'mongodb://127.0.0.1:27017/brickworks_metrics');
     mongoAvailable = true;
@@ -134,10 +138,6 @@ async function startServer() {
   } catch (error) {
     console.warn('MongoDB connection unavailable, running in fallback memory mode:', error.message);
   }
-
-  app.listen(PORT, () => {
-    console.log(`Server running on http://localhost:${PORT}`);
-  });
 }
 
 startServer();

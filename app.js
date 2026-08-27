@@ -869,16 +869,16 @@ function initEventListeners() {
 
 let dashboardInitialized = false;
 
-function initDashboard() {
+async function initDashboard() {
     if (dashboardInitialized) return;
 
-    loadData();
+    dashboardInitialized = true;
+    await loadData();
     initEventListeners();
     rebuildMonthSelector();
     renderTables();
     updateAnalystDropdowns();
     updateMonthIndicators();
-    dashboardInitialized = true;
 }
 
 function init() {
