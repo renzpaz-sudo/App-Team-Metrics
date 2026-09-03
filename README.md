@@ -14,6 +14,8 @@ A simple dashboard app for tracking IT tickets by application and analyst.
 
 The frontend is served as static pages: open the dashboard at `http://localhost:5000/`, admin controls at `http://localhost:5000/admin.html`, and the KPI view at `http://localhost:5000/kpi.html`. The API is available at `http://localhost:5000/api`.
 
+Authenticated sessions expire after 20 minutes without activity. Clicking, typing, scrolling, touching, or moving the pointer resets the inactivity timer.
+
 ## Vercel deployment
 
 Vercel uses `api/index.js` for the `/api` endpoints. Add these environment variables in the Vercel project settings before deploying:

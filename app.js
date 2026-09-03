@@ -10,6 +10,9 @@ let currentMonth = "";
 const weekLabels = ['Week 1', 'Week 2', 'Week 3', 'Week 4'];
 const API_BASE = '/api';
 const AUTH_KEY = 'brickworks-metrics-auth';
+const SESSION_TIMEOUT_MS = 20 * 60 * 1000;
+let sessionTimeoutId;
+let activityListenersInitialized = false;
 
 function isAuthenticated() {
     return localStorage.getItem(AUTH_KEY) === 'true';
@@ -18,9 +21,35 @@ function isAuthenticated() {
 function setAuthenticated(value) {
     if (value) {
         localStorage.setItem(AUTH_KEY, 'true');
+        resetSessionTimeout();
     } else {
         localStorage.removeItem(AUTH_KEY);
+        clearTimeout(sessionTimeoutId);
+        sessionTimeoutId = undefined;
     }
+}
+
+function resetSessionTimeout() {
+    if (!isAuthenticated()) return;
+
+    clearTimeout(sessionTimeoutId);
+    sessionTimeoutId = setTimeout(() => {
+        setAuthenticated(false);
+        showLoginScreen(true);
+        const loginError = document.getElementById('loginError');
+        if (loginError) loginError.textContent = 'Your session expired after 20 minutes of inactivity. Please sign in again.';
+    }, SESSION_TIMEOUT_MS);
+}
+
+function initSessionTimeout() {
+    if (activityListenersInitialized) return;
+
+    activityListenersInitialized = true;
+    ['click', 'keydown', 'pointermove', 'scroll', 'touchstart'].forEach(eventName => {
+        document.addEventListener(eventName, resetSessionTimeout, { passive: true });
+    });
+
+    resetSessionTimeout();
 }
 
 function showLoginScreen(show) {
@@ -1025,6 +1054,8 @@ function initEventListeners() {
     listeners.forEach(([id, event, handler]) => {
         document.getElementById(id)?.addEventListener(event, handler);
     });
+
+    document.getElementById('monthSelector')?.addEventListener('change', changeMonth);
 }
 
 let dashboardInitialized = false;
@@ -1046,6 +1077,7 @@ function init() {
     const logoutBtn = document.getElementById('logoutBtn');
     if (loginForm) loginForm.addEventListener('submit', handleLogin);
     if (logoutBtn) logoutBtn.addEventListener('click', handleLogout);
+    initSessionTimeout();
 
     if (!isAuthenticated()) {
         showLoginScreen(true);
