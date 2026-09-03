@@ -513,6 +513,73 @@ function renderTables() {
     buildTable('JDEdwards', 'jdeTableBody', 'jdeFooterRow');
     buildTable('SalesForce', 'sfTableBody', 'sfFooterRow');
     updateAnalystDropdowns();
+    updateKPIView();
+}
+
+function updateKPIView() {
+    const kpiView = document.getElementById('kpiView');
+    if (!kpiView || !currentMonth) return;
+
+    const monthRecords = ticketRecords.filter(record => record.monthId === currentMonth);
+    const totalTickets = monthRecords.reduce((sum, record) => sum + Number(record.count || 0), 0);
+    const activeAnalysts = new Set(monthRecords.map(record => record.analyst));
+    const allAnalysts = getAllAnalysts();
+    const weeklyTotals = weekLabels.map((_, weekIndex) => monthRecords
+        .filter(record => Number(record.weekIndex) === weekIndex)
+        .reduce((sum, record) => sum + Number(record.count || 0), 0));
+    const peakWeekTotal = Math.max(...weeklyTotals, 0);
+    const peakWeekIndex = weeklyTotals.indexOf(peakWeekTotal);
+    const customerTotals = { GG: 0, BWS: 0 };
+    const appTotals = { JDEdwards: 0, SalesForce: 0 };
+    const analystTotals = {};
+
+    monthRecords.forEach(record => {
+        const count = Number(record.count || 0);
+        customerTotals[record.customer] = (customerTotals[record.customer] || 0) + count;
+        appTotals[record.app] = (appTotals[record.app] || 0) + count;
+        analystTotals[record.analyst] = (analystTotals[record.analyst] || 0) + count;
+    });
+
+    const setText = (id, value) => {
+        const element = document.getElementById(id);
+        if (element) element.textContent = value;
+    };
+
+    setText('kpiTotalTickets', totalTickets);
+    setText('kpiActiveAnalysts', `${activeAnalysts.size} / ${allAnalysts.length}`);
+    setText('kpiAverageTickets', activeAnalysts.size ? (totalTickets / activeAnalysts.size).toFixed(1) : '0');
+    setText('kpiPeakWeek', peakWeekTotal ? `${weekLabels[peakWeekIndex]} · ${peakWeekTotal}` : 'No tickets');
+    setText('kpiMonthLabel', formatMonthDisplay(currentMonth));
+    setText('kpiCustomerTotal', `${customerTotals.GG} GG · ${customerTotals.BWS} BWS`);
+    setText('kpiApplicationTotal', `${appTotals.JDEdwards} JD Edwards · ${appTotals.SalesForce} Salesforce`);
+
+    const weeklyBars = document.getElementById('kpiWeeklyBars');
+    if (weeklyBars) {
+        weeklyBars.innerHTML = '';
+        weeklyTotals.forEach((total, index) => {
+            const barHeight = peakWeekTotal ? Math.max((total / peakWeekTotal) * 100, total ? 8 : 2) : 2;
+            const item = document.createElement('div');
+            item.className = 'kpi-week-bar';
+            item.innerHTML = `<div class="kpi-bar-value">${total}</div><div class="kpi-bar-track"><div class="kpi-bar-fill" style="height: ${barHeight}%"></div></div><div class="kpi-bar-label">${weekLabels[index]}</div>`;
+            weeklyBars.appendChild(item);
+        });
+    }
+
+    const leaderboard = document.getElementById('kpiLeaderboard');
+    if (leaderboard) {
+        leaderboard.innerHTML = '';
+        const sortedAnalysts = Object.entries(analystTotals).sort(([, first], [, second]) => second - first);
+        if (sortedAnalysts.length === 0) {
+            leaderboard.innerHTML = '<p class="text-sm text-stone-400 py-4">No ticket activity for this month.</p>';
+        } else {
+            sortedAnalysts.forEach(([analyst, total], index) => {
+                const row = document.createElement('div');
+                row.className = 'kpi-leader-row';
+                row.innerHTML = `<span class="kpi-rank">${index + 1}</span><span class="kpi-analyst">${analyst}</span><span class="kpi-leader-total">${total}</span>`;
+                leaderboard.appendChild(row);
+            });
+        }
+    }
 }
 
 function rebuildMonthSelector() {
@@ -528,8 +595,8 @@ function rebuildMonthSelector() {
     });
 }
 
-// Generate HTML report with embedded "Save as PDF" button
-function generateHTMLReport(reportType, weekIndex = null) {
+// Legacy HTML report builder retained for backwards compatibility.
+function generateLegacyHTMLReport(reportType, weekIndex = null) {
     const loadingDiv = document.getElementById('exportLoading');
     loadingDiv.style.display = 'flex';
     
@@ -688,6 +755,78 @@ function generateHTMLReport(reportType, weekIndex = null) {
     }
 }
 
+function generateExcelReport(reportType, weekIndex = null) {
+    const loadingDiv = document.getElementById('exportLoading');
+    loadingDiv.style.display = 'flex';
+
+    try {
+        if (typeof XLSX === 'undefined') {
+            throw new Error('Excel export library is unavailable.');
+        }
+
+        const monthDisplay = formatMonthDisplay(currentMonth);
+        const workbook = XLSX.utils.book_new();
+        const getWeekData = (app, analyst, week) => ({
+            gg: getCount(currentMonth, app, analyst, week, 'GG'),
+            bws: getCount(currentMonth, app, analyst, week, 'BWS')
+        });
+
+        for (const app of ['JDEdwards', 'SalesForce']) {
+            const appTitle = app === 'JDEdwards' ? 'JD Edwards' : 'SalesForce';
+            const rows = [
+                ['BrickWorks IT Operations'],
+                [reportType === 'month' ? 'Full Month Ticket Metrics' : `${weekLabels[weekIndex]} Ticket Metrics`],
+                ['Month', monthDisplay],
+                ['Generated', new Date().toLocaleString()],
+                []
+            ];
+
+            if (reportType === 'month') {
+                rows.push(['Analyst', 'Week 1 (GG)', 'Week 1 (BWS)', 'Week 2 (GG)', 'Week 2 (BWS)', 'Week 3 (GG)', 'Week 3 (BWS)', 'Week 4 (GG)', 'Week 4 (BWS)', 'Total']);
+                let appTotal = 0;
+                for (const analyst of getAnalystsForApp(app)) {
+                    const row = [analyst];
+                    let analystTotal = 0;
+                    for (let week = 0; week < 4; week++) {
+                        const { gg, bws } = getWeekData(app, analyst, week);
+                        row.push(gg, bws);
+                        analystTotal += gg + bws;
+                    }
+                    row.push(analystTotal);
+                    appTotal += analystTotal;
+                    rows.push(row);
+                }
+                rows.push(['Month Total Tickets', '', '', '', '', '', '', '', '', appTotal]);
+            } else {
+                rows.push(['Analyst', 'GG Tickets', 'BWS Tickets', 'Week Total']);
+                let weekGG = 0;
+                let weekBWS = 0;
+                for (const analyst of getAnalystsForApp(app)) {
+                    const { gg, bws } = getWeekData(app, analyst, weekIndex);
+                    rows.push([analyst, gg, bws, gg + bws]);
+                    weekGG += gg;
+                    weekBWS += bws;
+                }
+                rows.push([`${weekLabels[weekIndex]} Totals`, weekGG, weekBWS, weekGG + weekBWS]);
+            }
+
+            const sheet = XLSX.utils.aoa_to_sheet(rows);
+            sheet['!cols'] = reportType === 'month'
+                ? [{ wch: 24 }, ...Array(8).fill({ wch: 13 }), { wch: 12 }]
+                : [{ wch: 24 }, { wch: 14 }, { wch: 14 }, { wch: 14 }];
+            XLSX.utils.book_append_sheet(workbook, sheet, appTitle);
+        }
+
+        const fileName = `BrickWorks_IT_${reportType === 'month' ? `FullMonth_${currentMonth}` : `Week${weekIndex + 1}_${currentMonth}`}.xlsx`;
+        XLSX.writeFile(workbook, fileName);
+    } catch (error) {
+        console.error(error);
+        alert('Error generating Excel report.');
+    } finally {
+        loadingDiv.style.display = 'none';
+    }
+}
+
 function showUnifiedReportModal() {
     const modal = document.createElement('div');
     modal.className = 'edit-modal';
@@ -698,10 +837,10 @@ function showUnifiedReportModal() {
         </div>
         <p class="text-stone-600 mb-5 text-sm">Select report scope for <strong>${formatMonthDisplay(currentMonth)}</strong></p>
         <div class="grid grid-cols-2 gap-3 mb-5">
-            <button data-type="week" data-week="0" class="report-option bg-amber-50 hover:bg-amber-100 border border-amber-200 rounded-xl py-3 font-semibold transition">📄 Week 1</button>
-            <button data-type="week" data-week="1" class="report-option bg-amber-50 hover:bg-amber-100 border border-amber-200 rounded-xl py-3 font-semibold transition">📄 Week 2</button>
-            <button data-type="week" data-week="2" class="report-option bg-amber-50 hover:bg-amber-100 border border-amber-200 rounded-xl py-3 font-semibold transition">📄 Week 3</button>
-            <button data-type="week" data-week="3" class="report-option bg-amber-50 hover:bg-amber-100 border border-amber-200 rounded-xl py-3 font-semibold transition">📄 Week 4</button>
+            <button data-type="week" data-week="0" class="report-option bg-amber-50 hover:bg-amber-100 border border-amber-200 rounded-xl py-3 font-semibold transition"><i class="fa-solid fa-file-excel text-emerald-700"></i> Week 1</button>
+            <button data-type="week" data-week="1" class="report-option bg-amber-50 hover:bg-amber-100 border border-amber-200 rounded-xl py-3 font-semibold transition"><i class="fa-solid fa-file-excel text-emerald-700"></i> Week 2</button>
+            <button data-type="week" data-week="2" class="report-option bg-amber-50 hover:bg-amber-100 border border-amber-200 rounded-xl py-3 font-semibold transition"><i class="fa-solid fa-file-excel text-emerald-700"></i> Week 3</button>
+            <button data-type="week" data-week="3" class="report-option bg-amber-50 hover:bg-amber-100 border border-amber-200 rounded-xl py-3 font-semibold transition"><i class="fa-solid fa-file-excel text-emerald-700"></i> Week 4</button>
             <button data-type="month" class="report-option col-span-2 bg-purple-100 hover:bg-purple-200 border border-purple-300 rounded-xl py-3 font-semibold transition"><i class="fa-regular fa-calendar-alt"></i> Full Month Report (All Weeks)</button>
         </div>
         <button id="cancelReportModal" class="w-full mt-2 bg-stone-300 hover:bg-stone-400 text-stone-700 font-medium py-2 rounded-xl transition">Cancel</button>
@@ -716,10 +855,10 @@ function showUnifiedReportModal() {
         btn.addEventListener('click', async () => {
             const type = btn.getAttribute('data-type');
             if (type === 'month') {
-                generateHTMLReport('month');
+                generateExcelReport('month');
             } else if (type === 'week') {
                 const week = parseInt(btn.getAttribute('data-week'));
-                generateHTMLReport('week', week);
+                generateExcelReport('week', week);
             }
             closeModal();
         });

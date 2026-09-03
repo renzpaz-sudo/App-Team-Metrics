@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>BrickWorks IT Dashboard | Team KPIs</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/x-icon" href="/BrickworksNA.jpg">
+</head>
+<body class="brick-pattern-bg antialiased">
+    <div id="loginScreen" class="login-screen">
+        <div class="login-card">
+            <div class="login-brand">
+                <i class="fa-solid fa-bricks text-amber-800 text-3xl"></i>
+                <div><h2>BrickWorks</h2><p>IT Operations Dashboard</p></div>
+            </div>
+            <form id="loginForm" class="login-form">
+                <div class="form-group"><label for="loginUsername">Username</label><input id="loginUsername" type="text" placeholder="Enter username" autocomplete="username" required></div>
+                <div class="form-group"><label for="loginPassword">Password</label><input id="loginPassword" type="password" placeholder="Enter password" autocomplete="current-password" required></div>
+                <button id="loginBtn" type="submit" class="login-btn"><i id="loginBtnIcon" class="fa-solid fa-right-to-bracket"></i><i id="loginBtnSpinner" class="fa-solid fa-spinner fa-spin" hidden></i><span id="loginBtnText">Sign In</span></button>
+                <p id="loginError" class="login-error" aria-live="polite"></p>
+            </form>
+        </div>
+    </div>
+
+    <div id="appShell" class="hidden">
+        <div id="kpiView" class="max-w-[1400px] mx-auto px-4 md:px-6 py-6 md:py-8">
+            <header class="flex flex-wrap justify-between items-center mb-8 border-b border-orange-800/20 pb-4">
+                <div>
+                    <h1 class="text-3xl md:text-4xl font-bold tracking-tight text-stone-800 flex items-center gap-3"><i class="fa-solid fa-bricks text-amber-800 text-3xl"></i>BrickWorks <span class="font-light text-stone-500">Team KPIs</span></h1>
+                    <p class="text-stone-500 text-sm mt-1">A quick read on ticket volume, workload, and team activity</p>
+                </div>
+                <div class="mt-3 md:mt-0 flex flex-wrap gap-2 items-center">
+                    <div class="flex items-center gap-2 bg-white/80 rounded-full px-3 py-1.5 border border-stone-200 shadow-sm">
+                        <i class="fa-regular fa-calendar text-amber-700"></i>
+                        <select id="monthSelector" class="bg-transparent text-sm font-medium text-stone-700 outline-none"></select>
+                        <button id="changeMonthBtn" class="text-sky-700 hover:text-sky-900" title="Switch month"><i class="fa-solid fa-arrow-right"></i></button>
+                    </div>
+                    <a href="index.html" class="bg-white hover:bg-stone-50 text-stone-700 text-sm px-4 py-2 rounded-full font-medium transition border border-stone-200"><i class="fa-solid fa-table-columns mr-2 text-amber-700"></i>Dashboard</a>
+                    <a href="admin.html" class="bg-white hover:bg-stone-50 text-stone-700 text-sm px-4 py-2 rounded-full font-medium transition border border-stone-200"><i class="fa-solid fa-sliders mr-2 text-amber-700"></i>Admin</a>
+                    <button id="logoutBtn" class="bg-stone-800 hover:bg-stone-900 text-white text-sm px-4 py-2 rounded-full font-medium transition"><i class="fa-solid fa-right-from-bracket mr-2"></i>Logout</button>
+                </div>
+            </header>
+
+            <section class="kpi-hero mb-6">
+                <div><p class="kpi-eyebrow">Team snapshot</p><h2 id="kpiMonthLabel">Loading...</h2><p>Current-month performance across both application teams.</p></div>
+                <i class="fa-solid fa-chart-line kpi-hero-icon"></i>
+            </section>
+
+            <section class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 mb-6" aria-label="Key performance indicators">
+                <div class="kpi-card kpi-card-amber"><div class="kpi-card-icon"><i class="fa-solid fa-ticket"></i></div><div><p>Total tickets</p><strong id="kpiTotalTickets">0</strong><span>Across both applications</span></div></div>
+                <div class="kpi-card kpi-card-sky"><div class="kpi-card-icon"><i class="fa-solid fa-users"></i></div><div><p>Active analysts</p><strong id="kpiActiveAnalysts">0 / 0</strong><span>Analysts with activity</span></div></div>
+                <div class="kpi-card kpi-card-emerald"><div class="kpi-card-icon"><i class="fa-solid fa-scale-balanced"></i></div><div><p>Average workload</p><strong id="kpiAverageTickets">0</strong><span>Tickets per active analyst</span></div></div>
+                <div class="kpi-card kpi-card-rose"><div class="kpi-card-icon"><i class="fa-solid fa-bolt"></i></div><div><p>Peak week</p><strong id="kpiPeakWeek">No tickets</strong><span>Highest weekly volume</span></div></div>
+            </section>
+
+            <section class="grid grid-cols-1 lg:grid-cols-[1.35fr_1fr] gap-6 mb-6">
+                <div class="kpi-panel"><div class="kpi-panel-heading"><div><p class="kpi-eyebrow">Volume trend</p><h2>Weekly ticket flow</h2></div><span class="kpi-panel-note">Tickets by week</span></div><div id="kpiWeeklyBars" class="kpi-week-bars"></div></div>
+                <div class="kpi-panel"><div class="kpi-panel-heading"><div><p class="kpi-eyebrow">Mix</p><h2>Where work landed</h2></div><i class="fa-solid fa-chart-pie text-sky-700"></i></div><div class="kpi-mix-list"><div class="kpi-mix-item"><span class="kpi-mix-dot kpi-mix-dot-amber"></span><div><strong>Customer mix</strong><p id="kpiCustomerTotal">0 GG · 0 BWS</p></div></div><div class="kpi-mix-item"><span class="kpi-mix-dot kpi-mix-dot-sky"></span><div><strong>Application mix</strong><p id="kpiApplicationTotal">0 JD Edwards · 0 Salesforce</p></div></div></div></div>
+            </section>
+
+            <section class="kpi-panel"><div class="kpi-panel-heading"><div><p class="kpi-eyebrow">Team activity</p><h2>Analyst leaderboard</h2></div><span class="kpi-panel-note">Ranked by tickets</span></div><div id="kpiLeaderboard" class="kpi-leaderboard"></div></section>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
