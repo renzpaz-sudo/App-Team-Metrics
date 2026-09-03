@@ -62,97 +62,12 @@
                     <i class="fa-regular fa-calendar-alt mr-2 text-amber-700"></i>
                     <span id="globalMonthIndicator">Loading...</span>
                 </div>
+                <a href="admin.html" class="bg-white hover:bg-stone-50 text-stone-700 text-sm px-4 py-2 rounded-full font-medium transition border border-stone-200">
+                    <i class="fa-solid fa-sliders mr-2 text-amber-700"></i>Admin
+                </a>
                 <button id="logoutBtn" class="bg-stone-800 hover:bg-stone-900 text-white text-sm px-4 py-2 rounded-full font-medium transition">
                     <i class="fa-solid fa-right-from-bracket mr-2"></i>Logout
                 </button>
-            </div>
-        </div>
-
-        <!-- Action Panels -->
-        <div class="grid grid-cols-1 lg:grid-cols-4 gap-6 mb-8">
-            <div class="bg-white rounded-2xl shadow-md p-5 border-l-8 border-l-amber-700 card-hover">
-                <h2 class="font-semibold text-lg flex items-center gap-2 text-stone-800"><i class="fa-solid fa-user-plus text-amber-700"></i> Add Analyst</h2>
-                <div class="mt-3 flex flex-col gap-2">
-                    <input type="text" id="newAnalystName" placeholder="Analyst full name" class="w-full px-4 py-2 border border-stone-300 rounded-xl focus:ring-2 focus:ring-amber-500/40 focus:border-amber-500 outline-none">
-                    <div class="flex gap-2">
-                        <label class="flex items-center gap-1 text-sm"><input type="checkbox" id="analystJDE" value="JDEdwards" class="rounded"> JD Edwards</label>
-                        <label class="flex items-center gap-1 text-sm"><input type="checkbox" id="analystSF" value="SalesForce" class="rounded"> Salesforce</label>
-                    </div>
-                    <button id="addAnalystBtn" class="bg-amber-800 hover:bg-amber-900 text-white px-5 py-2 rounded-xl font-medium transition flex items-center justify-center gap-2"><i class="fa-solid fa-plus"></i> Add Analyst</button>
-                </div>
-                <p class="text-xs text-stone-400 mt-2">* Select which app(s) the analyst works on</p>
-            </div>
-
-            <div class="bg-white rounded-2xl shadow-md p-5 border-l-8 border-l-red-700 card-hover">
-                <h2 class="font-semibold text-lg flex items-center gap-2 text-stone-800"><i class="fa-solid fa-user-minus text-red-600"></i> Remove Analyst</h2>
-                <div class="mt-3 flex flex-col gap-2">
-                    <select id="removeAnalystSelect" class="w-full border border-stone-300 rounded-xl px-3 py-2 text-sm bg-white">
-                        <option value="">-- Select analyst to remove --</option>
-                    </select>
-                    <select id="removeAppSelect" class="w-full border border-stone-300 rounded-xl px-3 py-2 text-sm bg-white">
-                        <option value="both">Both Applications</option>
-                        <option value="JDEdwards">JD Edwards Only</option>
-                        <option value="SalesForce">SalesForce Only</option>
-                    </select>
-                    <button id="removeAnalystBtn" class="bg-red-600 hover:bg-red-700 text-white px-5 py-2 rounded-xl font-medium transition flex items-center justify-center gap-2"><i class="fa-solid fa-trash-alt"></i> Remove Analyst</button>
-                </div>
-                <p class="text-xs text-stone-400 mt-2">* Choose which app to remove analyst from</p>
-            </div>
-
-            <div class="bg-white rounded-2xl shadow-md p-5 border-l-8 border-l-emerald-700 card-hover">
-                <h2 class="font-semibold text-lg flex items-center gap-2 text-stone-800"><i class="fa-solid fa-ticket-alt text-emerald-700"></i> Add Tickets</h2>
-                <div class="grid grid-cols-2 gap-2 mt-2">
-                    <div>
-                        <label class="text-xs text-stone-500 block">Analyst</label>
-                        <select id="ticketAnalystSelect" class="w-full border border-stone-300 rounded-xl px-3 py-2 text-sm bg-white"></select>
-                    </div>
-                    <div>
-                        <label class="text-xs text-stone-500 block">Application</label>
-                        <select id="ticketAppSelect" class="w-full border border-stone-300 rounded-xl px-3 py-2 text-sm">
-                            <option value="JDEdwards">JD Edwards</option>
-                            <option value="SalesForce">SalesForce</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label class="text-xs text-stone-500 block">Customer</label>
-                        <select id="ticketCustomerSelect" class="w-full border border-stone-300 rounded-xl px-3 py-2 text-sm">
-                            <option value="GG">GG (Glen-Gery)</option>
-                            <option value="BWS">BWS (Brickworks Supply)</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label class="text-xs text-stone-500 block">Week</label>
-                        <select id="ticketWeekSelect" class="w-full border border-stone-300 rounded-xl px-3 py-2 text-sm bg-white">
-                            <option value="0">Week 1</option>
-                            <option value="1">Week 2</option>
-                            <option value="2">Week 3</option>
-                            <option value="3">Week 4</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label class="text-xs text-stone-500 block"># Tickets</label>
-                        <input type="number" id="ticketQty" min="1" max="50" value="1" class="w-full border border-stone-300 rounded-xl px-3 py-2 text-sm">
-                    </div>
-                </div>
-                <button id="addTicketsBtn" class="mt-3 w-full bg-emerald-700 hover:bg-emerald-800 text-white font-medium py-2 rounded-xl transition flex items-center justify-center gap-2"><i class="fa-solid fa-plus-circle"></i> Add Tickets</button>
-                <p class="text-xs text-stone-400 mt-1">* Select which week to add tickets to</p>
-            </div>
-
-            <div class="bg-white rounded-2xl shadow-md p-5 border-l-8 border-l-sky-700 card-hover">
-                <h2 class="font-semibold text-lg flex items-center gap-2 text-stone-800"><i class="fa-regular fa-file-alt"></i> Month Manager & Reports</h2>
-                <div class="flex flex-col gap-2 mt-2">
-                    <div class="flex gap-2">
-                        <select id="monthSelector" class="flex-1 border border-stone-300 rounded-xl py-2 px-3 bg-white text-sm"></select>
-                        <button id="changeMonthBtn" class="bg-sky-700 hover:bg-sky-800 text-white px-4 py-2 rounded-xl font-medium transition flex items-center gap-1"><i class="fa-solid fa-arrow-right"></i> Switch</button>
-                    </div>
-                    <div class="flex gap-2">
-                        <input type="month" id="newMonthInput" class="flex-1 border border-stone-300 rounded-xl px-3 py-2 text-sm" value="2026-07">
-                        <button id="addMonthBtn" class="bg-emerald-700 hover:bg-emerald-800 text-white px-4 rounded-xl text-sm font-medium flex items-center gap-1"><i class="fa-solid fa-plus"></i></button>
-                        <button id="removeMonthBtn" class="bg-red-600 hover:bg-red-700 text-white px-4 rounded-xl text-sm font-medium flex items-center gap-1"><i class="fa-solid fa-trash"></i></button>
-                    </div>
-                    <button id="unifiedReportBtn" class="mt-2 w-full bg-purple-700 hover:bg-purple-800 text-white py-2.5 rounded-xl flex items-center justify-center gap-2 transition font-semibold shadow-sm"><i class="fa-solid fa-chart-line"></i> Generate Report</button>
-                </div>
-                <p class="text-xs text-stone-400 mt-2">* Click Generate to choose week or full month report</p>
             </div>
         </div>
 

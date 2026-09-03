@@ -12,7 +12,7 @@ A simple dashboard app for tracking IT tickets by application and analyst.
 4. Start the app:
    npm start
 
-The frontend is served as a static page and the API is available at `http://localhost:5000/api`.
+The frontend is served as static pages: open the dashboard at `http://localhost:5000/` and the admin controls at `http://localhost:5000/admin.html`. The API is available at `http://localhost:5000/api`.
 
 ## Vercel deployment
 

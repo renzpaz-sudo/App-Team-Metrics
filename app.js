@@ -873,13 +873,19 @@ function changeMonth() {
 }
 
 function initEventListeners() {
-    document.getElementById('addAnalystBtn').addEventListener('click', addAnalyst);
-    document.getElementById('removeAnalystBtn').addEventListener('click', handleRemoveAnalyst);
-    document.getElementById('addTicketsBtn').addEventListener('click', addTickets);
-    document.getElementById('addMonthBtn').addEventListener('click', addNewMonth);
-    document.getElementById('removeMonthBtn').addEventListener('click', handleRemoveMonth);
-    document.getElementById('changeMonthBtn').addEventListener('click', changeMonth);
-    document.getElementById('unifiedReportBtn').addEventListener('click', showUnifiedReportModal);
+    const listeners = [
+        ['addAnalystBtn', 'click', addAnalyst],
+        ['removeAnalystBtn', 'click', handleRemoveAnalyst],
+        ['addTicketsBtn', 'click', addTickets],
+        ['addMonthBtn', 'click', addNewMonth],
+        ['removeMonthBtn', 'click', handleRemoveMonth],
+        ['changeMonthBtn', 'click', changeMonth],
+        ['unifiedReportBtn', 'click', showUnifiedReportModal]
+    ];
+
+    listeners.forEach(([id, event, handler]) => {
+        document.getElementById(id)?.addEventListener(event, handler);
+    });
 }
 
 let dashboardInitialized = false;
